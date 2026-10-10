@@ -67,9 +67,8 @@
 
                     alert("✅ " + resultado.mensaje + " " + resultado.usuario);
                     
-                    // Limpiamos los campos
-                    document.getElementById('usuario').value = '';
-                    document.getElementById('password').value = '';
+                    // PASO 9: Redirigimos a la página de requerimientos/operaciones
+                    window.location.href = "requerimientos.html";
 
                 } else if (respuesta.status === 401) {
                     // Si el usuario o contraseña no coinciden en la base de datos
