@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <!-- UNA SOLA LÍNEA: Simple.css aplica diseño limpio y moderno automáticamente sin clases -->
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+
+    <header>
+        <h1>Iniciar Sesión</h1>
+        <p>¿No tienes una cuenta? <a href="registro.html">Regístrate aquí</a></p>
+    </header>
+
+    <main>
+        <form id="formularioLogin">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario" required placeholder="Ingresa tu usuario">
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" required placeholder="Ingresa tu contraseña">
+
+            <button type="submit">Ingresar</button>
+        </form>
+    </main>
+
+    <!-- =========================================================
+         JAVASCRIPT DIDÁCTICO PASO A PASO: LOGIN CON JWT
+         ========================================================= -->
+    <script>
+        // PASO 1: Interceptar el formulario cuando el usuario presione "Ingresar"
+        document.getElementById('formularioLogin').addEventListener('submit', async function(evento) {
+            
+            // PASO 2: Evitamos que el navegador recargue la página
+            evento.preventDefault();
+
+            // PASO 3: Leemos los valores de las cajas de texto
+            const usuarioInput = document.getElementById('usuario').value;
+            const passwordInput = document.getElementById('password').value;
+
+            // PASO 4: Construimos el objeto JSON (debe llamarse igual que en C#: LoginRequest)
+            const payload = {
+                Usuario: usuarioInput,
+                Password: passwordInput
+            };
+
+            // PASO 5: Bloque try/catch para controlar errores de conexión o API apagada
+            try {
+                // PASO 6: Hacemos la petición POST a nuestra API en el puerto 5059
+                const respuesta = await fetch('http://localhost:5059/api/Usuario/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // PASO 7: Si las credenciales son correctas (200 OK)
+                if (respuesta.ok) {
+                    const resultado = await respuesta.json();
+
+                    // PASO 8: GUARDAR EL TOKEN en el navegador (localStorage)
+                    // Con esto mantendrás la sesión abierta para otras páginas
+                    localStorage.setItem('token', resultado.token);
+
+                    alert("✅ " + resultado.mensaje + " " + resultado.usuario);
+                    
+                    // Limpiamos los campos
+                    document.getElementById('usuario').value = '';
+                    document.getElementById('password').value = '';
+
+                } else if (respuesta.status === 401) {
+                    // Si el usuario o contraseña no coinciden en la base de datos
+                    alert("⚠️ Usuario o contraseña incorrectos.");
+                } else {
+                    alert("⚠️ Ocurrió un error al intentar iniciar sesión.");
+                }
+
+            } catch (error) {
+                console.error("Error de conexión:", error);
+                alert("❌ No se pudo conectar con la API. Revisa que el backend esté corriendo en http://localhost:5059");
+            }
+        });
+    </script>
+
+</body>
+</html>
